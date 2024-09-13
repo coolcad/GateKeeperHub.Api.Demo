@@ -146,10 +146,13 @@ namespace GateKeeperHub.Api.Demo
                 }
 
                 // Step 3: Fetch list of users with loading spinner
+
+                var searchQuery = AnsiConsole.Ask<string>("[bold]Enter a search query for users (name or email), or press [green]Enter[/] to load all users:[/]");
                 var users = await AnsiConsole.Status()
                     .StartAsync("Loading users...", async ctx =>
                     {
-                        return await GetUsersAsync(serverUrl, token);
+                       
+                        return await GetUsersAsync(serverUrl, token, searchQuery);
                     });
 
                 if (users == null || users.Count == 0)
@@ -299,12 +302,12 @@ namespace GateKeeperHub.Api.Demo
         }
 
         // Method to get the list of users
-        static async Task<List<User>> GetUsersAsync(string serverUrl, string token)
+        static async Task<List<User>> GetUsersAsync(string serverUrl, string token,string filter)
         {
             var client = new HttpClient();
             client.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
 
-            var response = await client.GetAsync($"{serverUrl}/hub/api/v4/GateKeeperUsers");
+            var response = await client.GetAsync($"{serverUrl}/hub/api/v4/GateKeeperUsers?filter={filter}");
             if (response.IsSuccessStatusCode)
             {
                 var responseJson = await response.Content.ReadAsStringAsync();
